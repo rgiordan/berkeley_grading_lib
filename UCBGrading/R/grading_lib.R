@@ -39,7 +39,7 @@ ApplyRowOperation <- function(df, cols, new_cols, RowOperation) {
 
 
 #' @export
-WeightedMean <- function(df, cols, new_col, weights=NULL) {
+ComputeWeightedMean <- function(df, cols, new_col, weights=NULL) {
   if (is.null(weights)) {
     weights <- rep(1, length(cols))
     weights <- weights / sum(weights)
@@ -60,7 +60,7 @@ WeightedMean <- function(df, cols, new_col, weights=NULL) {
 
 
 #' @export
-DropLowest <- function(df, cols, new_prefix, num_drops) {
+DropLowest <- function(df, cols, num_drops, new_prefix) {
   grade_len <- length(cols)
   keep_len <- grade_len - num_drops
   stopifnot(keep_len > 0)
@@ -77,7 +77,7 @@ DropLowest <- function(df, cols, new_prefix, num_drops) {
 }
 
 #' @export
-NormalizeColsByNumber <- function(df, cols, max_score) {
+NormalizeColsByNumber <- function(df, cols, max_score, suffix="_norm") {
   if (length(max_score) > 1) {
     stopifnot(length(max_score) != length(cols))
   }
@@ -90,13 +90,13 @@ NormalizeColsByNumber <- function(df, cols, max_score) {
   }
  
   return(ApplyRowOperation(
-    df=df, cols=cols, new_cols=new_cols,
+    df=df, cols=cols, new_cols=paste0(cols, suffix),
     RowOperation=RowOperation))
 }
 
 
 #' @export
-NormalizeColsByCols <- function(df, cols, max_score_cols) {
+NormalizeColsByCols <- function(df, cols, max_score_cols, suffix="_norm") {
   num_cols <- length(cols)
   num_norm_cols <- length(max_score_cols)
   if (num_norm_cols > 1) {
@@ -109,16 +109,20 @@ NormalizeColsByCols <- function(df, cols, max_score_cols) {
     vec <- as.numeric(vec)
     grades <- vec[1:num_cols]
     norm_vals <- vec[(num_cols + 1):(num_cols + num_norm_cols)]
-    
+
     return(grades / norm_vals)
   }
- 
+
   return(ApplyRowOperation(
-    df=df, cols=cols, new_cols=new_cols,
+    df=df, cols=c(cols, max_score_cols), new_cols=paste0(cols, suffix),
     RowOperation=RowOperation))
 }
 
 
+#' @export
+GetMatchingEntries <- function(svec, pattern) {
+  svec[grepl(pattern, svec)]
+}
 
 #' @export
 GetLetterGrade <- function(score) {
