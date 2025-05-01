@@ -95,7 +95,7 @@ DropLowest <- function(df, num_drops, cols=NULL, new_prefix="drop_") {
 NormalizeColsByNumber <- function(df, max_score, cols=NULL, suffix="_norm") {
   cols <- GetDefaultCols(df, cols)
   if (length(max_score) > 1) {
-    stopifnot(length(max_score) != length(cols))
+    stopifnot(length(max_score) == length(cols))
   }
   stopifnot(is.numeric(max_score))
   stopifnot(all(max_score > 0))
