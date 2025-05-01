@@ -22,19 +22,62 @@ hw_cols <- GetMatchingEntries(names(grades), "homework_[0-9]+$")
 hw_max_cols <- GetMatchingEntries(names(grades), "homework_[0-9]+_max$")
 
 
+
+NormalizeColsByCols(grades, "quiz_max", cols=quiz_cols) %>%
+DropLowest(num_drops=1, new_prefix="quiz_dropped_")
+
+grades %>%
+  NormalizeColsByCols("quiz_max", cols=quiz_cols) %>%
+  DropLowest(num_drops=1, new_prefix="quiz_dropped_") %>%
+  ComputeWeightedMean(new_col="quiz_mean")
+
+
+
 bind_cols(
   grades["id"],
   grades %>%
-    NormalizeColsByCols(quiz_cols, "quiz_max") %>%
-    DropLowest(paste0(quiz_cols, "_norm"), num_drops=1, new_prefix="quiz_dropped_") %>%
-    ComputeWeightedMean(paste0("quiz_dropped_", 1:3), "quiz_mean"),
+    NormalizeColsByCols("quiz_max", cols=quiz_cols) %>%
+    DropLowest(num_drops=1, new_prefix="quiz_dropped_") %>%
+    ComputeWeightedMean(new_col="quiz_mean")
+  ,
   grades %>%
-    NormalizeColsByCols(hw_cols, hw_max_cols) %>%
-    DropLowest(paste0(hw_cols, "_norm"), num_drops=1, new_prefix="hw_dropped_") %>%
-    ComputeWeightedMean(paste0("hw_dropped_", 1:2), "hw_mean")
+    NormalizeColsByCols(max_score_cols=hw_max_cols, cols=hw_cols) %>%
+    DropLowest(num_drops=1, new_prefix="hw_dropped_") %>%
+    ComputeWeightedMean(new_col="hw_mean")
 )
 
-ComputeWeightedMean(grades, quiz_cols, "quiz_mean", weights=1:4)
-DropLowest(grades, hw_cols, num_drops=1, new_prefix="hw_dropped_")
+ComputeWeightedMean(grades, cols=quiz_cols, new_col="quiz_mean", weights=1:4)
+DropLowest(grades, cols=hw_cols, num_drops=1, new_prefix="hw_dropped_")
 
-NormalizeColsByCols(grades, quiz_cols, "quiz_max")
+NormalizeColsByCols(grades, cols=quiz_cols, max_score_cols="quiz_max")
+
+
+##########
+# Tests
+
+AssertValuesEqual <- function(df1, df2, tol=1e-9) {
+  err <- mean(abs(as.matrix(df1) - as.matrix(df2)))
+  if (err > tol) {
+    stop(sprintf("Error > Tol: %f > %f", err, tol))
+  }
+}
+
+
+CheckQuizNorm <- function(df) {
+  for (quiz_num in 1:4) {
+    AssertValuesEqual(
+      df[paste0("quiz_", quiz_num, "_norm")],
+      grades[paste0("quiz_", quiz_num)] / 10,
+    )
+  }
+}
+
+NormalizeColsByCols(grades, cols=quiz_cols, max_score_cols="quiz_max") %>% CheckQuizNorm()
+NormalizeColsByNumber(grades, cols=quiz_cols, max_score=10) %>% CheckQuizNorm()
+NormalizeColsByNumber(grades[quiz_cols], max_score=10) %>% CheckQuizNorm()
+
+
+
+
+
+

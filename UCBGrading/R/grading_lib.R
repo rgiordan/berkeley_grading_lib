@@ -4,6 +4,11 @@ library(tidyverse)
 # each row of df[cols], returning a new data frame with columns new_cols
 #' @export
 ApplyRowOperation <- function(df, cols, new_cols, RowOperation) {
+  stopifnot(is.data.frame(df))
+  stopifnot(is.character(cols))
+  stopifnot(is.character(new_cols))
+  stopifnot(is.function(RowOperation))
+
   ncols <- length(cols)
   stopifnot(all(cols %in% names(df)))
   
@@ -36,10 +41,19 @@ ApplyRowOperation <- function(df, cols, new_cols, RowOperation) {
 }
 
 
-
+# Allow NULL specifications of the columns to act on to select all the dataframe columns
+GetDefaultCols <- function(df, cols) {
+  stopifnot(is.data.frame(df))
+  if (is.null(cols)) {
+    return(names(df))
+  } else {
+    return(cols)
+  }
+}
 
 #' @export
-ComputeWeightedMean <- function(df, cols, new_col, weights=NULL) {
+ComputeWeightedMean <- function(df, cols=NULL, new_col="weighted_mean", weights=NULL) {
+  cols <- GetDefaultCols(df, cols)
   if (is.null(weights)) {
     weights <- rep(1, length(cols))
     weights <- weights / sum(weights)
@@ -60,7 +74,8 @@ ComputeWeightedMean <- function(df, cols, new_col, weights=NULL) {
 
 
 #' @export
-DropLowest <- function(df, cols, num_drops, new_prefix) {
+DropLowest <- function(df, num_drops, cols=NULL, new_prefix="drop_") {
+  cols <- GetDefaultCols(df, cols)
   grade_len <- length(cols)
   keep_len <- grade_len - num_drops
   stopifnot(keep_len > 0)
@@ -77,7 +92,8 @@ DropLowest <- function(df, cols, num_drops, new_prefix) {
 }
 
 #' @export
-NormalizeColsByNumber <- function(df, cols, max_score, suffix="_norm") {
+NormalizeColsByNumber <- function(df, max_score, cols=NULL, suffix="_norm") {
+  cols <- GetDefaultCols(df, cols)
   if (length(max_score) > 1) {
     stopifnot(length(max_score) != length(cols))
   }
@@ -95,8 +111,10 @@ NormalizeColsByNumber <- function(df, cols, max_score, suffix="_norm") {
 }
 
 
+# It does not make sense to have a default for cols.
 #' @export
-NormalizeColsByCols <- function(df, cols, max_score_cols, suffix="_norm") {
+NormalizeColsByCols <- function(df, max_score_cols, cols, suffix="_norm") {
+  stopifnot(is.data.frame(df))
   num_cols <- length(cols)
   num_norm_cols <- length(max_score_cols)
   if (num_norm_cols > 1) {
