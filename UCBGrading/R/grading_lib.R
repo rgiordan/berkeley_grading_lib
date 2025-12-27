@@ -145,16 +145,16 @@ GetMatchingEntries <- function(svec, pattern) {
 #' @export
 GetLetterGrade <- function(score) {
   grade <- case_when(
-    score >= 0.99 ~ "A+",
+    score >= 0.98 ~ "A+",
     score >= 0.92 ~ "A",
     score >= 0.90 ~ "A-",
-    score >= 0.89 ~ "B+",
+    score >= 0.88 ~ "B+",
     score >= 0.82 ~ "B",
     score >= 0.80 ~ "B-",
-    score >= 0.79 ~ "C+",
+    score >= 0.78 ~ "C+",
     score >= 0.72 ~ "C",
     score >= 0.70 ~ "C-",
-    score >= 0.69 ~ "D+",
+    score >= 0.68 ~ "D+",
     score >= 0.62 ~ "D",
     score >= 0.60 ~ "D-",
     TRUE ~ "F"
