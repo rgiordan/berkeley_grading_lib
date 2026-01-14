@@ -142,20 +142,23 @@ GetMatchingEntries <- function(svec, pattern) {
   svec[grepl(pattern, svec)]
 }
 
+#
+# There are standards for letter grades at Berkeley
+# https://ieor.berkeley.edu/wp-content/uploads/2019/10/GPA_Conversion_Chart2.pdf
 #' @export
 GetLetterGrade <- function(score) {
   grade <- case_when(
-    score >= 0.98 ~ "A+",
-    score >= 0.92 ~ "A",
+    score >= 0.97 ~ "A+",
+    score >= 0.93 ~ "A",
     score >= 0.90 ~ "A-",
-    score >= 0.88 ~ "B+",
-    score >= 0.82 ~ "B",
+    score >= 0.87 ~ "B+",
+    score >= 0.83 ~ "B",
     score >= 0.80 ~ "B-",
-    score >= 0.78 ~ "C+",
-    score >= 0.72 ~ "C",
+    score >= 0.77 ~ "C+",
+    score >= 0.73 ~ "C",
     score >= 0.70 ~ "C-",
-    score >= 0.68 ~ "D+",
-    score >= 0.62 ~ "D",
+    score >= 0.67 ~ "D+",
+    score >= 0.63 ~ "D",
     score >= 0.60 ~ "D-",
     TRUE ~ "F"
   )
